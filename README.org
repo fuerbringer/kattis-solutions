@@ -11,11 +11,20 @@
 *** C++ and C
     At the time of writing the C/C++ solutions do not yet have Makefiles. They can however very easily be built using:
 
-    `g++ -Wall -g -O2 -std=gnu++14 solution.c && ./a.out`
+#+BEGIN_SRC
+g++ -Wall -g -O2 -std=gnu++14 solution.c && ./a.out
+#+END_SRC
+
 *** Haskell
     Cabal files are included, although I personally prefer to use [[https://nixos.org/nix/][Nix]] derivations.
 **** Nix
-     To build the Haskell solutions using Nix simply execute the following: `nix-build build.nix`. This will result in a folder named `result` appearing with the executable being contained in it.
+     To build the Haskell solutions using Nix simply execute the following:
+
+#+BEGIN_SRC
+nix-build build.nix
+#+END_SRC
+
+     This will result in a folder named `result` appearing with the executable being contained in it.
    
 ** Disclaimer
    Unaware of Kattis' potential anti-cheating measures I can't guarantee you not getting "punished" by using my solutions using your Kattis account.
