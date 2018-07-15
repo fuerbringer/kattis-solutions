@@ -1,0 +1,33 @@
+* Kattis Solutions
+  An assorted set of solutions to the various algorithmic and mathematical problems on [[https://open.kattis.com][Kattis]].
+  Each directory in this repository contains one solution to a problem. The directory name will usualy correspond with the URL slug on Kattis.
+  
+  This repository serves as a playground to tinker with new languages and expand my algorithmic skills.
+  
+** Programming languages
+   Most problems thus far were solved using C++. Some in C, and a few using Haskell. In the latter two languages I wouldn't yet consider myself a proficient user.
+   
+** Build instructions
+*** C++ and C
+    At the time of writing the C/C++ solutions do not yet have Makefiles. They can however very easily be built using:
+
+#+BEGIN_SRC
+g++ -Wall -g -O2 -std=gnu++14 solution.c && ./a.out
+#+END_SRC
+
+*** Haskell
+    Cabal files are included, although I personally prefer to use [[https://nixos.org/nix/][Nix]] derivations.
+**** Nix
+     To build the Haskell solutions using Nix simply execute the following:
+
+#+BEGIN_SRC
+nix-build build.nix
+#+END_SRC
+
+     This will result in a folder named `result` appearing with the executable being contained in it.
+   
+** Disclaimer
+   Unaware of Kattis' potential anti-cheating measures I can't guarantee you not getting "punished" by using my solutions using your Kattis account.
+   
+** License
+   This software is released under the terms of the GNU GPL-3 license. See LICENSE for more information or visit [[https://www.gnu.org/licenses/gpl-3.0.txt][gnu.org]].
