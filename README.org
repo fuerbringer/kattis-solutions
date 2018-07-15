@@ -1,0 +1,14 @@
+* Kattis Solutions
+  An assorted set of solutions to the various algorithmic and mathematical problems on [[https://open.kattis.com][Kattis]].
+  Each directory in this repository contains one solution to a problem. The directory name will usualy correspond with the URL slug on Kattis.
+  
+  This repository serves as a playground to tinker with new languages and expand my algorithmic skills.
+  
+** Programming languages
+   Most problems thus far were solved using C++. Some in C, and a few using Haskell. In the latter two languages I wouldn't yet consider myself a proficient user.
+   
+** Disclaimer
+   Unaware of Kattis' potential anti-cheating measures I can't guarantee you not getting "punished" by using my solutions using your Kattis account.
+   
+** License
+   This software is released under the terms of the GNU GPL-3 license. See LICENSE for more information or visit [[https://www.gnu.org/licenses/gpl-3.0.txt][gnu.org]].
