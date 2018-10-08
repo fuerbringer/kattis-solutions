@@ -55,6 +55,7 @@ void printPadding(const std::size_t len, const char sym = '#') {
 
 int main(const int argc, const char** argv) {
   std::size_t processed = 0;
+  std::size_t inputMax = 500;
   point curPt{0, 0};
   bool done;
   std::string line;
@@ -64,20 +65,18 @@ int main(const int argc, const char** argv) {
   std::getline(std::cin, line);
   do {
     if(!(done = std::cin.eof())) {
-      if(line == "left")
+      if(line == "left" || line == "l")
 	lines.push_back(move{-1, 0});
-      if(line == "right")
+      if(line == "right" || line == "r")
 	lines.push_back(move{+1, 0});
-      if(line == "up")
+      if(line == "up" || line == "u")
 	lines.push_back(move{0, -1});
-      if(line == "down")
+      if(line == "down" || line == "d")
 	lines.push_back(move{0, +1});
     }
-  } while(!done && std::getline(std::cin, line));
+  } while(!done && inputMax-- && std::getline(std::cin, line));
 
   for(auto m : lines) {
-    const std::size_t matrixLenX = matrix[0].length();
-    const std::size_t matrixLenY = matrix.size();
     const std::string pathChar = (processed == lines.size() - 1 ? "E" : "*");
     // First process
     if(processed == 0) {
@@ -106,9 +105,10 @@ int main(const int argc, const char** argv) {
     } else {
       if(m.isLeft()) {
 	// Prepend 's' to matrix[curPt.y]
-	if(matrix[curPt.y].length() >= 2) {
-	  //matrix[curPt.y][(curPt.x > 0 ? curPt.x - 1 : curPt.x)] = pathChar[0];
-	  matrix[curPt.y].insert(curPt.x, pathChar);
+	if(matrix[curPt.y][(curPt.x > 0 ? curPt.x - 1 : curPt.x)] == ' ' || matrix[curPt.y][(curPt.x > 0 ? curPt.x - 1 : curPt.x)] == 'S') {
+	  if(matrix[curPt.y][(curPt.x > 0 ? curPt.x - 1 : curPt.x)] != 'S') {
+	    matrix[curPt.y][(curPt.x > 0 ? curPt.x - 1 : curPt.x)] = pathChar[0];
+	  }
 	} else {
 	  matrix[curPt.y].insert(curPt.x, pathChar);
 	}
@@ -117,7 +117,13 @@ int main(const int argc, const char** argv) {
       }
       if(m.isRight()) {
 	// Append 's' to matrix[curPt.y]
-	matrix[curPt.y].insert(curPt.x + 1, pathChar);
+	if(matrix[curPt.y][curPt.x + 1] == '*' || matrix[curPt.y][curPt.x + 1] == 'S' || matrix[curPt.y][curPt.x + 1] == ' ') {
+	  if(matrix[curPt.y][curPt.x + 1] != 'S') {
+	    matrix[curPt.y][curPt.x + 1] = pathChar[0];
+	  }
+	} else {
+	  matrix[curPt.y].insert(curPt.x + 1, pathChar);
+	}
 	readjustMatrix(1, (matrix[curPt.y].length()), &matrix);
 	curPt.x++;
       }
@@ -134,7 +140,9 @@ int main(const int argc, const char** argv) {
 	  }
 	  matrix.insert(matrix.begin(), newStr);
 	} else {
-	  matrix[curPt.y - 1][curPt.x] = pathChar[0];
+	  if(matrix[curPt.y - 1][curPt.x] != 'S') {
+	    matrix[curPt.y - 1][curPt.x] = pathChar[0];
+	  }
 	  curPt.y--;
 	}
       }
@@ -150,7 +158,9 @@ int main(const int argc, const char** argv) {
 	  }
 	  matrix.push_back(newStr);
 	} else {
-	  matrix[curPt.y + 1][curPt.x] = pathChar[0];
+	  if(matrix[curPt.y + 1][curPt.x] != 'S') {
+	    matrix[curPt.y + 1][curPt.x] = pathChar[0];
+	  }
 	}
 	curPt.y++;
       }
