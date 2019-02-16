@@ -65,7 +65,6 @@ find_measurement(char* name,
   struct measurement* cur = start;
   size_t n = strlen(name);
   while(cur) {
-    printf("Comparing %s (%s) with %s\n", cur->name_full, cur->name, name);
     if(strncmp(cur->name, name, n) == 0 || strncmp(cur->name_full, name, n) == 0) {
       return cur;
     }
@@ -108,33 +107,32 @@ main(void) {
 
   token = strtok(line, sep);
   while(token) {
-    printf("[%d] -> %s\n", ti, token);
+    /* First deal with \n before passing to find_measurement() */
+    char tok[ln_len];
+    strncpy(tok, token, strlen(token));
+    tok[strlen(token) - 1] = '\0';
+
     switch(ti) {
     case 0: /* source length */
       source_len = (unsigned)atoi(token);
       break;
     case 1: /* source */
-      source = (struct measurement*)find_measurement(token, th);
+      source = (struct measurement*)find_measurement(tok, th);
       break;
     case 2: /* nop */
       ;
       break;
     case 3: /* dest */
-      dest = (struct measurement*)find_measurement(token, th);
+      dest = (struct measurement*)find_measurement(tok, th);
       break;
     }
     token = strtok(NULL, sep);
     ++ti;
   }
 
-  printf("\n--------------------------------------------------------------------------------\n");
-  if(source_len == 0)
-    printf("No source_len found");
-  if(!source)
-    printf("No source found");
-  if(!dest)
-    printf("No dest found");
-  //printf("source_len=%d\nsource='%s'\ndest='%s'", source_len, source->name, dest->name);
+
+
+  printf("source_len=%d\nsource='%s'\ndest='%s'", source_len, source->name, dest->name);
 
   destroy_measurements(th);
   return EXIT_SUCCESS;
