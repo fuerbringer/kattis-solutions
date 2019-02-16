@@ -1,7 +1,16 @@
+/* Challenge solution for : https://open.kattis.com/problems/measurement */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+enum {
+  UNKNOWN = -1,
+  DESCENDING,
+  ASCENDING
+};
+
+/* Doubly-linked list for storing the measurements*/
 struct measurement {
   char* name;
   char* name_full;
@@ -12,7 +21,8 @@ struct measurement {
 };
 
 struct measurement*
-create_measurement(const char* name, const char* name_full, unsigned val_for_next, struct measurement* prev) {
+create_measurement(const char* name, const char* name_full, unsigned
+    val_for_next, struct measurement* prev) {
   struct measurement* mm = 
     (struct measurement*)malloc(sizeof(struct measurement));
   if(!mm) {
@@ -65,12 +75,69 @@ find_measurement(char* name,
   struct measurement* cur = start;
   size_t n = strlen(name);
   while(cur) {
-    if(strncmp(cur->name, name, n) == 0 || strncmp(cur->name_full, name, n) == 0) {
+    if(strncmp(cur->name, name, n) == 0 || 
+        strncmp(cur->name_full, name, n) == 0) {
       return cur;
     }
     cur = cur->next;
   }
   return NULL;
+}
+
+/**
+ * Get direction for traversing linked list
+ */
+int
+getRelativeListDirection(struct measurement* m1, struct measurement* m2) {
+  if(!m1->next) {
+    /* Must be previous element if we're at the tail of the linked-list */
+    return DESCENDING;
+  }
+  /* go with next (ascending) */
+  struct measurement* cur = m1->next;
+  while(cur) {
+    if(cur == m2) 
+      return ASCENDING;
+    if(cur->next) {
+      cur = cur->next;
+    } else {
+      /* Element is presumably in one of m1's prev elements. Fast, but potentially
+       * bug-ridden outside of the scope of this Kattis Problem. */
+      return DESCENDING;
+    }
+  }
+  return UNKNOWN;
+}
+
+double
+convert(unsigned source_len, struct measurement* source,
+    struct measurement* dest) {
+  double prod = source_len;
+  if(source == dest)
+    return prod;
+
+  int dir = getRelativeListDirection(source, dest);
+  if(dir == DESCENDING) {
+    /* We traverse the d-list from source to dest through source->prev */
+    /* Example yd -> in. We will multiply for each node to descend to smaller
+     * units.
+     * 5 yd * 3 = 15 ft
+     * 15 ft * 12 = 18 in */
+    struct measurement* cur = source->prev;
+    while(cur) {
+      prod *= cur->val_for_next;
+      cur = (cur == dest ? NULL : cur->prev);
+    }
+  } else if(dir == ASCENDING) {
+    /* Traverse up through source->next to the next biggest units */
+    struct measurement* cur = source;
+    while(cur) {
+      if(cur->val_for_next)
+        prod /= cur->val_for_next;
+      cur = (cur->next == dest ? NULL : cur->next);
+    }
+  }
+  return prod;
 }
 
 int
@@ -91,49 +158,56 @@ main(void) {
   ch->next = fur;
   fur->next = mi;
   mi->next = lea;
+  lea->next = NULL;
+  struct measurement* starting_measurement = th;
   /* End data entry */
 
   const size_t ln_len = 32; /* max line length */
   char line[ln_len];
   const char* sep = " ";
   char *token;
-  size_t ti = 0; /* input token index*/
+  size_t ti = 0; /* input token index */
 
   unsigned source_len = 0; /* Source length */
-  struct measurement* source;
-  struct measurement* dest;
+  struct measurement* source = NULL;
+  struct measurement* dest = NULL;
 
-  fgets(line, ln_len, stdin); /* Read one line of input */
+  /* Read one line of input */
+  if(fgets(line, ln_len, stdin)) {
+    token = strtok(line, sep);
+    while(token) {
+      /* First deal with \n before passing to find_measurement() */
+      char tok[ln_len];
+      strncpy(tok, token, strlen(token));
+      tok[strlen(token) - 1] = '\0';
 
-  token = strtok(line, sep);
-  while(token) {
-    /* First deal with \n before passing to find_measurement() */
-    char tok[ln_len];
-    strncpy(tok, token, strlen(token));
-    tok[strlen(token) - 1] = '\0';
-
-    switch(ti) {
-    case 0: /* source length */
-      source_len = (unsigned)atoi(token);
-      break;
-    case 1: /* source */
-      source = (struct measurement*)find_measurement(tok, th);
-      break;
-    case 2: /* nop */
-      ;
-      break;
-    case 3: /* dest */
-      dest = (struct measurement*)find_measurement(tok, th);
-      break;
+      switch(ti) {
+        case 0: /* source length */
+          source_len = (unsigned)atoi(token);
+          break;
+        case 1: /* source */
+          source = (struct measurement*)find_measurement(tok,
+              starting_measurement);
+          break;
+        case 2: /* nop */
+          /* Used for the "in" keyword */
+          ;
+          break;
+        case 3: /* dest */
+          dest = (struct measurement*)find_measurement(tok, starting_measurement);
+          break;
+      }
+      token = strtok(NULL, sep);
+      ++ti;
     }
-    token = strtok(NULL, sep);
-    ++ti;
+
+    if(source && dest) {
+      double result = convert(source_len, source, dest);
+      printf("%.13f\n", result);
+    }
   }
 
 
-
-  printf("source_len=%d\nsource='%s'\ndest='%s'", source_len, source->name, dest->name);
-
-  destroy_measurements(th);
+  destroy_measurements(starting_measurement);
   return EXIT_SUCCESS;
 }
