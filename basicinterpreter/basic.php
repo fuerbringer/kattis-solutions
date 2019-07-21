@@ -4,6 +4,11 @@
 //        It is specifically designed to pass the open.kattis.com challenge
 //        "basicinterpreter" and misses features such as error handling and
 //        proper arithmetic.
+//
+//        This solution is technically working, but is not performant enough to
+//        pass as kattis submission.
+//
+
 
 
 //------------------------------------------------------------------------------
@@ -73,14 +78,14 @@ function cmp($a, $b) {
 
 
 //------------------------------------------------------------------------------
-// Figure out what array-index $line has in instruction list $a.
-function lineToArrayIndex($a, $line) {
-  for($i = 0; $i < size($instructions); $i++) {
+// Figure out what array-index $line has in instruction list $instructions.
+function lineToArrayIndex($instructions, $line) {
+  for($i = 0; $i < count($instructions); $i++) {
     $ins = $instructions[$i];
     if($ins->line() == $line)
       return $i;
   }
-  return -1;
+  return false;
 }
 
 function to32BitSigned($n) {
@@ -94,7 +99,18 @@ function to32BitSigned($n) {
   return $mv;
 }
 
-function assignmentToMem($params, $memory) {
+function assignmentToMemCmd($params, $memory) {
+  /*
+    POSSIBLE PARAMS
+    count($params) == 3 means simple assignment:
+    <VAR> = <NUM>
+    <VAR> = <VAR>
+    count($params) == 5 means assignment with arithmetic:
+    <VAR> = <NUM> {+,-,*,/} <NUM>
+    <VAR> = <VAR> {+,-,*,/} <NUM>
+    <VAR> = <NUM> {+,-,*,/} <VAR>
+    <VAR> = <VAR> {+,-,*,/} <VAR>
+   */
   $memVar = $params[0];
   if(count($params) === 3) {
     $rval = $params[2];
@@ -107,9 +123,12 @@ function assignmentToMem($params, $memory) {
     }
     $memory[$memVar] = $rval;
   } else if(count($params) === 5) {
+    // Assignment with arithmetic
     $val1 = $params[2];
     $op = $params[3];
     $val2 = $params[4];
+
+    // Read vals from memory if needed
     if(is_numeric($val1)) {
       $val1 = intval($val1);
     } else {
@@ -120,6 +139,7 @@ function assignmentToMem($params, $memory) {
     } else {
       $val2 = $memory[$val2];
     }
+
     switch($op) {
     case '+':
       $memory[$memVar] = $val1 + $val2;
@@ -137,6 +157,74 @@ function assignmentToMem($params, $memory) {
     $memory[$memVar] = to32BitSigned((int)($memory[$memVar]));
   }
   return $memory;
+}
+
+function printCmd($str, $memory, $nl = false) {
+  if(is_string($str) && strlen($str) >= 2) {
+    if($str[0] === '"' && $str[strlen($str) - 1] === '"') {
+      // Literal string
+      $str = substr($str, 1, -1);
+    }
+  } else {
+    // Variable
+    $str = $memory[$str];
+  }
+
+  if($nl) {
+    $str .= "\n";
+  }
+
+  echo $str;
+}
+
+function ifCmd($params, $memory) {
+  /*
+  [0] => <NUM or VAR>
+  [1] => X = Y, X > Y, X < Y, X <> Y, X <= Y, or X >= Y
+  [2] => <NUM or VAR>
+  [3] => THEN
+  [4] => GOTO
+  [5] => <NUM>
+  */
+  $comp = $params[1];
+  $val1 = $params[0];
+  $val2 = $params[2];
+  $line = $params[5];
+  $goto = false;
+  if(is_numeric($val1)) {
+    $val1 = intval($val1);
+  } else {
+    $val1 = $memory[$val1];
+  }
+  if(is_numeric($val2)) {
+    $val2 = intval($val2);
+  } else {
+    $val2 = $memory[$val2];
+  }
+  switch($comp) {
+  case '=':
+    $goto = $val1 == $val2; 
+    break;
+  case '>':
+    $goto = $val1 > $val2; 
+    break;
+  case '<':
+    $goto = $val1 < $val2; 
+    break;
+  case '<>':
+    $goto = $val1 != $val2; 
+    break;
+  case '<=':
+    $goto = $val1 <= $val2; 
+    break;
+  case '>=':
+    $goto = $val1 >= $val2; 
+    break;
+  }
+  if($goto) {
+    return intval($line);
+  }
+  return false;
 }
 
 
@@ -171,41 +259,31 @@ for($i = 0; $i < count($instructions); $i++) {
   $ins = $instructions[$i];
   switch($ins->command()) {
   case 'LET':
-    /*
-      POSSIBLE PARAMS
-      count($ins->parameters()) == 3 means simple assignment:
-        <VAR> = <NUM>
-        <VAR> = <VAR>
-      count($ins->parameters()) == 5 means assignment with arithmetic:
-        <VAR> = <NUM> {+,-,*,/} <NUM>
-        <VAR> = <VAR> {+,-,*,/} <NUM>
-        <VAR> = <NUM> {+,-,*,/} <VAR>
-        <VAR> = <VAR> {+,-,*,/} <VAR>
-     */
-    $memory = assignmentToMem($ins->parameters(), $memory);
+    $memory = assignmentToMemCmd($ins->parameters(), $memory);
     break;
     //----------------------------------------------------------------------------
   case 'IF':
-    // TODO
+    $line = ifCmd($ins->parameters(), $memory);
+    if($line !== false) {
+      // IF evaluated to true, so we do the GOTO
+      $l = lineToArrayIndex($instructions, $line);
+      if($l !== false) {
+        $i = $l - 1;
+      }
+    }
     break;
     //----------------------------------------------------------------------------
   case 'PRINT':
-    /* Possible params
-      "<STR>"
-     */
-    // TODO
+    printCmd(implode(' ', $ins->parameters()), $memory);
     break;
     //----------------------------------------------------------------------------
   case 'PRINTLN':
-    /* Possible params
-      "<STR>"
-     */
-    // TODO
+    printCmd(implode(' ', $ins->parameters()), $memory, true);
     break;
     //----------------------------------------------------------------------------
     // default: noop, unrecognized command
   }
 }
-print_r($memory);
+// print_r($memory);
 
 ?>
