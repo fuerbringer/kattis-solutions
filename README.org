@@ -1,11 +1,14 @@
 * Kattis Solutions
-  An assorted set of solutions to the various algorithmic and mathematical problems on [[https://open.kattis.com][Kattis]].
-  Each directory in this repository contains one solution to a problem. The directory name will usualy correspond with the URL slug on Kattis.
-  
-  This repository serves as a playground to tinker with new languages and expand my algorithmic skills.
+An assorted set of solutions to the various algorithmic and mathematical problems on [[https://open.kattis.com][Kattis]].
+Each directory in this repository contains one solution to a problem. The directory name will usualy correspond with the URL slug on Kattis.
+
+This repository serves as a playground to tinker with new languages and expand my algorithmic skills.
+** Disclaimer
+Unaware of Kattis' potential anti-cheating measures I can't guarantee you not getting "punished" by uploading my solutions.
+For this reason *I recommend against using my solutions on open.kattis.com*.
 ** Build instructions
 *** C++ and C
-    At the time of writing the C/C++ solutions do not yet have Makefiles. They can however very easily be built using:
+At the time of writing the C/C++ solutions do not yet have Makefiles. They can however very easily be built using:
 #+BEGIN_SRC
 g++ -Wall -g -O2 -std=gnu++14 solution.c && ./a.out
 #+END_SRC
@@ -13,7 +16,5 @@ g++ -Wall -g -O2 -std=gnu++14 solution.c && ./a.out
 #+BEGIN_SRC
 php solution.php
 #+END_SRC
-** Disclaimer
-   Unaware of Kattis' potential anti-cheating measures I can't guarantee you not getting "punished" by uploading my solutions.
 ** License
-   This software is released under the terms of the GNU GPL-3 license. See LICENSE for more information or visit [[https://www.gnu.org/licenses/gpl-3.0.txt][gnu.org]].
+This software is released under the terms of the GNU GPL-3 license. See LICENSE for more information or visit [[https://www.gnu.org/licenses/gpl-3.0.txt][gnu.org]].
