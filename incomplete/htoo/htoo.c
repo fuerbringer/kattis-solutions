@@ -64,8 +64,13 @@ isDigit(char c) {
  * Return true if an atom by name atm->name is already present in molecule
  */
 int /* boolean */
-moleculeContainsAtom(struct molecule* mol, struct atom* atm) {
-
+moleculeContainsAtom(struct molecule* mol, size_t mol_atom_count, struct atom* atm) {
+  size_t i = 0;
+  for(; i < mol_atom_count; i++) {
+    if(in_molecule->atoms[i]) {
+      printf("(%c,%ld)\n", in_molecule->atoms[i]->name, in_molecule->atoms[i]->count);
+    }
+  }
 }
 
 int 
@@ -83,7 +88,7 @@ main(void) {
            i = 0;
 
     for(; i < in_mol_strln && in_mol[i] != ' '; i++) {
-      if(!isDigit(in_mol[i])) {
+      if(!isDigit(in_mol[i]) && in_mol[i] != ' ') {
         char new_atm_name = in_mol[i];
         size_t new_atm_count = 1; /* Atom count omitted means no digit follows */
         if(i + 1 < in_mol_strln && isDigit(in_mol[i + 1])) {
@@ -106,7 +111,7 @@ main(void) {
   }
 
   size_t i = 0;
-  for(; i < in_molecule_atoms_index - 1; i++) {
+  for(; i < in_molecule_atoms_index /*- 1*/; i++) {
     if(in_molecule->atoms[i]) {
       printf("(%c,%ld)\n", in_molecule->atoms[i]->name, in_molecule->atoms[i]->count);
     }
