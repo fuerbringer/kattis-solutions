@@ -21,7 +21,8 @@ rot_val(char* str, size_t len) {
   return rot_val;
 }
 
-void rot_str(char* str, size_t len, size_t delta) {
+void
+rot_str(char* str, size_t len, size_t delta) {
   size_t i = 0;
   for(; i < len; ++i) {
     size_t new_val = (char_to_val(str[i]) + delta) % 26;
@@ -30,7 +31,8 @@ void rot_str(char* str, size_t len, size_t delta) {
   }
 }
 
-char* combine_strs(char* left, char* right, size_t len) {
+char*
+combine_strs(char* left, char* right, size_t len) {
   char* combined = (char*)malloc(sizeof(char) * len);
   size_t i = 0;
   for(; i < len; ++i) {
